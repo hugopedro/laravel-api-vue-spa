@@ -14,29 +14,53 @@
                 </v-tooltip>
               </v-toolbar>
               <v-card-text>
-                <v-form>
-                  <v-text-field
-                    label="E-mail"
-                    name="login"
-                    prepend-icon="mdi-account"
-                    type="text"
-                    v-model="email"
-                  ></v-text-field>
-                  <v-text-field
-                    id="password"
-                    label="Senha"
-                    name="password"
-                    prepend-icon="mdi-lock"
-                    type="password"
-                    v-model="password"
-                  ></v-text-field>
-                </v-form>
+                <ValidationObserver
+                  ref="loginForm"
+                  tag="form"
+                  @submit.stop.prevent="login"
+                >
+                  <!-- observa o formulário -->
+                  <v-form>
+                    <ValidationProvider
+                      v-slot="{ errors }"
+                      rules="required|email"
+                      name="E-mail"
+                    >
+                      <v-text-field
+                        label="E-mail"
+                        name="login"
+                        prepend-icon="mdi-account"
+                        type="text"
+                        v-model="email"
+                      >
+                      </v-text-field>
+                      <div class="pb-4" justify="center" v-if="!!errors[0]">
+                        <span style="color: crimson">{{ errors[0] }}</span>
+                      </div>
+                    </ValidationProvider>
+                    <ValidationProvider
+                      v-slot="{ errors }"
+                      rules="required"
+                      name="Password"
+                    >
+                      <v-text-field
+                        id="password"
+                        label="Senha"
+                        name="password"
+                        prepend-icon="mdi-lock"
+                        type="password"
+                        v-model="password"
+                      ></v-text-field>
+                      <div class="pb-4" justify="center" v-if="!!errors[0]">
+                        <span style="color: crimson">{{ errors[0] }}</span>
+                      </div>
+                    </ValidationProvider>
+                  </v-form>
+                </ValidationObserver>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click.stop.prevent="login()"
-                  >Login</v-btn
-                >
+                <v-btn color="primary" type="submit">Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -47,8 +71,13 @@
 </template>
 
 <script>
-import Cookie from "js-cookie";
+// import Cookie from "js-cookie";
+import { ValidationObserver, ValidationProvider } from "vee-validate";
 export default {
+  components: {
+    ValidationObserver,
+    ValidationProvider,
+  },
   props: {
     source: String,
   },
@@ -59,7 +88,14 @@ export default {
     };
   },
   methods: {
-    login() {
+    async login() {
+      const validator = await this.$refs.loginForm.validate();
+      if (!validator) {
+        return;
+      }
+      console.log("Login");
+      return;
+      /*
       const payload = {
         email: this.email,
         password: this.password,
@@ -69,7 +105,7 @@ export default {
         const token = `${response.data.token_type}${response.data.access_token}`;
         Cookie.set("todolist_token", token, { expires: 30 });
         this.$store.commit("user/STORE_USER", response.data.data);
-      });
+      }); */
     },
   },
 };
