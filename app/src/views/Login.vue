@@ -13,11 +13,14 @@
                   <span>Source</span>
                 </v-tooltip>
               </v-toolbar>
+              <div v-if="response.message" class="response.color ml-10 mt-4">
+                <h3 color="danger">{{ response.message }}</h3>
+              </div>
               <v-card-text>
                 <ValidationObserver
                   ref="loginForm"
                   tag="form"
-                  @submit.stop.prevent="login"
+                  @submit.prevent="login"
                 >
                   <!-- observa o formulário -->
                   <v-form>
@@ -60,7 +63,15 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" type="submit">Login</v-btn>
+                <v-row justify="center mr-12">
+                  <pagina-carregando v-if="loading" key="loading" />
+                </v-row>
+                <v-btn
+                  color="primary"
+                  v-model="loading"
+                  @click.stop.prevent="login()"
+                  >Login</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-col>
@@ -71,12 +82,15 @@
 </template>
 
 <script>
-// import Cookie from "js-cookie";
+import Cookie from "js-cookie";
+import PaginaCarregando from "../components/PaginaCarregando";
+import messages from "../utils/messages";
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 export default {
   components: {
     ValidationObserver,
     ValidationProvider,
+    PaginaCarregando,
   },
   props: {
     source: String,
@@ -85,27 +99,44 @@ export default {
     return {
       email: "",
       password: "",
+      response: {
+        color: "",
+        message: "",
+      },
+      loading: false,
     };
   },
   methods: {
     async login() {
       const validator = await this.$refs.loginForm.validate();
       if (!validator) {
+        this.loading = false;
         return;
       }
-      console.log("Login");
-      return;
-      /*
+
       const payload = {
         email: this.email,
         password: this.password,
       };
 
-      this.$axios.post("v1/login", payload).then((response) => {
-        const token = `${response.data.token_type}${response.data.access_token}`;
-        Cookie.set("todolist_token", token, { expires: 30 });
-        this.$store.commit("user/STORE_USER", response.data.data);
-      }); */
+      this.resetResponse();
+      this.loading = true;
+      this.$axios
+        .post("v1/login", payload)
+        .then((response) => {
+          const token = `${response.data.token_type}${response.data.access_token}`;
+          Cookie.set("todolist_token", token, { expires: 30 });
+          this.$store.commit("user/STORE_USER", response.data.data);
+        })
+        .catch((e) => {
+          const errorCode = e?.response?.data?.error || "ServerError";
+          this.response.color = "red";
+          this.response.message = messages[errorCode];
+          this.loading = false;
+        });
+    },
+    resetResponse() {
+      this.response.message = "";
     },
   },
 };
