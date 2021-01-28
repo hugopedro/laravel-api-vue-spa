@@ -2,19 +2,25 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
+import VerifyEmail from "../views/VerifyEmail.vue";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
-    name: "Login",
+    path: "/login",
+    name: "login",
     component: Login,
   },
   {
     path: "/register",
     name: "Register",
     component: Register,
+  },
+  {
+    path: "/verificar-email",
+    name: "VerifyEmail",
+    component: VerifyEmail,
   },
 ];
 
