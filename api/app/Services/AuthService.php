@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\UserRegistered;
 use App\Exceptions\LoginInvalidException;
 use App\Exceptions\UserHasBeenTakenException;
 use App\Models\User;
@@ -37,12 +38,16 @@ class AuthService
         }
         $userPassword = bcrypt($password ?? Str::random(10));
 
-        return User::create([
+        $user = User::create([
             'first_name' => $firstName,
             'last_name' => $lastName,
             'email' => $email,
             'password' => $userPassword,
             'confirmation_token' => Str::random(60),
         ]);
+
+        event(new UserRegistered($user));
+
+        return $user;
     }
 }
