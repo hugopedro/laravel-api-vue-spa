@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -13,7 +14,6 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
     ];
 
     /**
@@ -29,12 +29,25 @@ class Handler extends ExceptionHandler
     /**
      * Register the exception handling callbacks for the application.
      *
-     * @return void
+     * @param mixed $request
      */
-    public function register()
+
+    //Detalhe que o laravel 8 gera uma função register por padrão, mas não é essa que será usada
+
+    public function render($request, Throwable $exception)
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+        if ($exception instanceof ModelNotFoundException) {
+            $modelName = class_basename($exception->getModel());
+
+            $apiErrorCode = $modelName.'NotFoundException';
+            $message = $modelName.' Not found.';
+
+            return response()->json([
+                'error' => $apiErrorCode,
+                'message' => $message,
+            ], 404);
+        }
+
+        return parent::render($request, $exception);
     }
 }
