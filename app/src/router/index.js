@@ -5,12 +5,20 @@ import Register from "../views/Register.vue";
 import VerifyEmail from "../views/VerifyEmail.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import ResetPassword from "../views/ResetPassword.vue";
+import Home from "../views/Home.vue";
+import Guard from "../service/middleware.js";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
+    path: "/",
+    name: "index",
+    component: Home,
+  },
+  {
     path: "/login",
+    beforeEnter: Guard.redirectIfAuthenthicated,
     name: "login",
     component: Login,
   },
