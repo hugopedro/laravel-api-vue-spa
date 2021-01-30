@@ -1,8 +1,8 @@
-import Cookie from "js-cookie";
+import Cookie from "../service/cookie";
 
 export default {
   redirectIfNotAuthenticated(to, from, next) {
-    const token = Cookie.get("todolist_token");
+    const token = Cookie.getToken();
     if (!token) {
       next({ name: "login" });
     }
@@ -13,7 +13,7 @@ export default {
     next();
   },
   redirectIfAuthenticated(to, from, next) {
-    const token = Cookie.get("todolist_token");
+    const token = Cookie.getToken();
     let n;
     if (token) {
       n = { name: "index" };
