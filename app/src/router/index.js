@@ -6,6 +6,7 @@ import VerifyEmail from "../views/VerifyEmail.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
 import ResetPassword from "../views/ResetPassword.vue";
 import Home from "../views/Home.vue";
+import Profile from "../views/Profile.vue";
 import Guard from "../service/middleware.js";
 
 Vue.use(VueRouter);
@@ -27,6 +28,12 @@ const routes = [
     path: "/register",
     name: "Register",
     component: Register,
+  },
+  {
+    path: "/perfil",
+    beforeEnter: Guard.redirectIfNotAuthenticated,
+    name: "profile",
+    component: Profile,
   },
   {
     path: "/verificar-email",
