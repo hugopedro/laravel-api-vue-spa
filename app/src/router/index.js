@@ -13,12 +13,13 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
+    beforeEnter: Guard.redirectIfAuthenticated,
     name: "index",
     component: Home,
   },
   {
     path: "/login",
-    beforeEnter: Guard.redirectIfAuthenthicated,
+    beforeEnter: Guard.redirectIfAuthenticated,
     name: "login",
     component: Login,
   },
