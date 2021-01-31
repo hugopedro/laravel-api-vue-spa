@@ -37,15 +37,21 @@
         <v-row justify="center" align="center" class="pb-4">
           <v-card tile min-width="700px">
             <v-list>
-              <v-list-item-group color="primary">
-                <v-list-item v-for="todo in todos" :key="todo.id">
-                  <v-text-field
-                    outlined
-                    v-model="todo.label"
-                    @keyup.enter="updateTodo(todo)"
-                  ></v-text-field>
-                </v-list-item>
-              </v-list-item-group>
+              <v-list-item v-for="todo in todos" :key="todo.id">
+                <v-text-field
+                  outlined
+                  v-model="todo.label"
+                  @keyup.enter="updateTodo(todo)"
+                ></v-text-field>
+                <v-icon
+                  large
+                  color="red darken-2"
+                  class="mb-8 ml-4"
+                  @click.stop.prevent="destroyTodo(todo)"
+                >
+                  mdi-delete
+                </v-icon>
+              </v-list-item>
             </v-list>
           </v-card>
         </v-row>
@@ -106,6 +112,12 @@ export default {
         label: todo.label,
       };
       this.$axios.put(`v1/todos/${todo.id}`, payload);
+    },
+    destroyTodo(todo) {
+      this.$axios.delete(`v1/todos/${todo.id}`).then(() => {
+        const idx = this.todos.findIndex((o) => o.id === todo.id);
+        this.todos.splice(idx, 1);
+      });
     },
   },
 };
