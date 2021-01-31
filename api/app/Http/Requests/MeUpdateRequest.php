@@ -27,7 +27,7 @@ class MeUpdateRequest extends FormRequest
             'first_name' => 'required|string',
             'last_name' => 'string|nullable',
             'email' => 'required|email',
-            'password' => 'required|string|min:8|max:30|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/',
+            'password' => 'string|min:8|max:30|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/',
         ];
     }
 }

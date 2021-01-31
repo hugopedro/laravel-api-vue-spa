@@ -7,7 +7,7 @@
           <v-col cols="12" sm="8" md="4">
             <v-card class="elevation-12">
               <v-toolbar color="primary" dark flat>
-                <v-toolbar-title>Registrar</v-toolbar-title>
+                <v-toolbar-title>Perfil</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
                   <span>Source</span>
@@ -20,7 +20,7 @@
                 <ValidationObserver
                   ref="profileForm"
                   tag="form"
-                  @submit.prevent="profile()"
+                  @submit.prevent="update()"
                 >
                   <v-form>
                     <ValidationProvider
@@ -65,7 +65,6 @@
                     <ValidationProvider
                       v-slot="{ errors }"
                       :rules="{
-                        required: true,
                         regex: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/,
                       }"
                       name="Senha"
@@ -86,8 +85,8 @@
                       <v-btn
                         type="submit"
                         color="primary"
-                        @click.stop.prevent="profile()"
-                        >Registrar</v-btn
+                        @click.stop.prevent="update()"
+                        >Atualizar perfil</v-btn
                       >
                     </v-card-actions>
                   </v-form>
@@ -105,7 +104,7 @@
 import { ValidationObserver, ValidationProvider } from "vee-validate";
 import messages from "../utils/messages";
 import Navbar from "../components/Navbar";
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 export default {
   name: "Profile",
   components: {
@@ -153,6 +152,39 @@ export default {
         .then(() => {
           this.response.color = "green";
           this.response.message = "Seu cadastro foi feito com sucesso.";
+        })
+        .catch((e) => {
+          const errorCode = e?.response?.data?.error || "ServerError";
+          this.response.color = "red";
+          this.response.message = messages[errorCode];
+        });
+    },
+    ...mapMutations("user", ["STORE_USER"]),
+    async update() {
+      const validator = await this.$refs.profileForm.validate();
+      if (!validator) {
+        return;
+      }
+
+      const payload = {
+        first_name: this.firstName,
+        last_name: this.lastName,
+        email: this.email,
+      };
+      // não se deve passar a senha, pois ela pode ser em branco, então só se passa a senha se for
+      // realmente preenchido pelo usuário, então:
+
+      if (this.password) {
+        // se o password existir
+        payload.password = this.password;
+      }
+
+      this.$axios
+        .put("v1/me", payload)
+        .then((response) => {
+          this.response.color = "green";
+          this.response.message = "Seus dados foram atualizados com sucesso!";
+          this.STORE_USER(response.data.data);
         })
         .catch((e) => {
           const errorCode = e?.response?.data?.error || "ServerError";
