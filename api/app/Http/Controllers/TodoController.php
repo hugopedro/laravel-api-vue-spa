@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TodoStoreRequest;
 use App\Http\Resources\TodoResource;
 
 class TodoController extends Controller
@@ -14,5 +15,13 @@ class TodoController extends Controller
     public function index()
     {
         return TodoResource::collection(auth()->user()->todos);
+    }
+
+    public function store(TodoStoreRequest $request)
+    {
+        $input = $request->validated();
+        $todo = auth()->user()->todos()->create($input);
+
+        return new TodoResource($todo);
     }
 }
