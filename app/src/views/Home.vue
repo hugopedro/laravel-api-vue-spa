@@ -35,13 +35,15 @@
           <pagina-carregando v-if="loading" key="loading" />
         </v-row>
         <v-row justify="center" align="center" class="pb-4">
-          <v-card class="mx-auto" tile>
-            <v-list disabled>
+          <v-card tile min-width="700px">
+            <v-list>
               <v-list-item-group color="primary">
                 <v-list-item v-for="todo in todos" :key="todo.id">
-                  <v-list-item-content>
-                    <v-list-item-title v-text="todo.label"></v-list-item-title>
-                  </v-list-item-content>
+                  <v-text-field
+                    outlined
+                    v-model="todo.label"
+                    @keyup.enter="updateTodo(todo)"
+                  ></v-text-field>
                 </v-list-item>
               </v-list-item-group>
             </v-list>
@@ -98,6 +100,12 @@ export default {
         this.todos.unshift(response.data.data); // se tiver sucesso adiciona a todo na lista de todos
         this.newTodo = ""; // limpa o todo e unshift faz com que o item adicionado fique no topo da lista
       });
+    },
+    updateTodo(todo) {
+      const payload = {
+        label: todo.label,
+      };
+      this.$axios.put(`v1/todos/${todo.id}`, payload);
     },
   },
 };
