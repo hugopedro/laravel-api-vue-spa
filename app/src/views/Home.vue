@@ -15,10 +15,17 @@
                     label="Digite o nome da sua lista"
                     outlined
                     type="text"
+                    v-model="newTodo"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="6">
-                  <v-btn color="success" class="mb-7"> Adicionar </v-btn>
+                  <v-btn
+                    color="success"
+                    class="mb-7"
+                    @click.stop.prevent="createTodo()"
+                  >
+                    Adicionar
+                  </v-btn>
                 </v-col>
               </v-row>
             </v-form>
@@ -58,6 +65,7 @@ export default {
     return {
       todos: [],
       loading: false,
+      newTodo: "",
     };
   },
 
@@ -76,6 +84,20 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+    },
+    createTodo() {
+      if (!this.newTodo) {
+        // faz com que nao permita mandar ao backend todo vazia, daí poupa o backend
+        return;
+      }
+      const payload = {
+        // primeira coisa é criar o payload
+        label: this.newTodo,
+      };
+      this.$axios.post("v1/todos", payload).then((response) => {
+        this.todos.unshift(response.data.data); // se tiver sucesso adiciona a todo na lista de todos
+        this.newTodo = ""; // limpa o todo e unshift faz com que o item adicionado fique no topo da lista
+      });
     },
   },
 };
