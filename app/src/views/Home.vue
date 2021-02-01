@@ -34,27 +34,7 @@
         <v-row justify="center mr-12">
           <pagina-carregando v-if="loading" key="loading" />
         </v-row>
-        <v-row justify="center" align="center" class="pb-4">
-          <v-card tile min-width="700px">
-            <v-list>
-              <v-list-item v-for="todo in todos" :key="todo.id">
-                <v-text-field
-                  outlined
-                  v-model="todo.label"
-                  @keyup.enter="updateTodo(todo)"
-                ></v-text-field>
-                <v-icon
-                  large
-                  color="red darken-2"
-                  class="mb-8 ml-4"
-                  @click.stop.prevent="destroyTodo(todo)"
-                >
-                  mdi-delete
-                </v-icon>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-row>
+        <todo-card v-for="todo in todos" :key="todo.id" :todo="todo" />
       </v-container>
     </v-main>
   </v-app>
@@ -63,11 +43,12 @@
 <script>
 import Navbar from "../components/Navbar";
 import PaginaCarregando from "../components/PaginaCarregando.vue";
+import TodoCard from "../components/Todos/TodoCard.vue";
 
 export default {
   name: "Home",
 
-  components: { Navbar, PaginaCarregando },
+  components: { Navbar, PaginaCarregando, TodoCard, TodoCard },
 
   data() {
     return {
@@ -87,7 +68,10 @@ export default {
       this.$axios
         .get("v1/todos")
         .then((response) => {
-          this.todos = response.data.data;
+          this.todos = response.data.data.map((o) => ({
+            ...o,
+            state: "show",
+          }));
         })
         .finally(() => {
           this.loading = false;
